@@ -16,11 +16,10 @@ Jb-Server
 ├─application           应用目录
 │  ├─models             模型目录
 │  └─http               http目录，http单独目录方便扩展websocket等
-│     ├─controller     
-│     │     ├─Base.php        http控制器基类，处理请求及响应逻辑，是所有控制器的父类
-│     │     ├─Index.php       默认控制器
-│     │     └─ ...            更多控制器
-│     └─main.php       httpserver入口文件
+│     └──controller     
+│           ├─Base.php        http控制器基类，处理请求及响应逻辑，是所有控制器的父类
+│           ├─Index.php       默认控制器
+│           └─ ...            更多控制器
 │
 ├─config                
 │  └─config.php         配置文件         
@@ -31,7 +30,11 @@ Jb-Server
 │
 ├─library              项目核心目录
 ├─log                  日志目录
-├─README.md             README 文件
+├─README.md           
+└─main.php             入口文件
 ~~~
 
 > http目录下的子类继承Base后，Swoole->Request信息已赋值给超全局变量$_GET,$_POST等，业务控制器直接使用即可。
+
+
+### 喜欢的同学可以点个star，欢迎Issues交流。
