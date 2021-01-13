@@ -6,7 +6,7 @@ class Index extends Base
 {
     public function index()
     {
-        $this->ajaxReturn("index ok");
+        $this->ajaxReturn("index ok, ip=" . $this->getClientIp());
     }
 
     public function heartbeat()

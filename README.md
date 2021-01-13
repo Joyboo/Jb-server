@@ -6,7 +6,7 @@
 
 启动
     
-    /pathto/php Jb-Server/application/http/main.php -s [start|stop|restart]
+    /pathto/php Jb-Server/main.php -s [start|stop|restart]
     
 至此httpServer已经启动完成了，就是如此简单！
 
