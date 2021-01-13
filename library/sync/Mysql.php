@@ -32,8 +32,6 @@ class Mysql extends \PDO
             $this->_linkId = parent::__construct($dsn, $config['username'], $config['password'], [\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES $config[charset]"]);
         } catch (\PDOException $e) {
             Exception::report($e, $config);
-
-            trace('连接数据导致主进程挂掉:当前进程id:' . posix_getpid() . ',主进程id:' . trim(file_get_contents(Crontab::$pidFile)) . ',数据库配置:' . json_encode($config), 'error');
             throw $e;
         }
     }

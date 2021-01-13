@@ -1,5 +1,4 @@
 <?php
-namespace app\http;
 
 use library\Exception;
 use Swoole\Http\Request;
@@ -18,10 +17,12 @@ define('HTTP_PATH', APP_PATH . 'http' . DS);
 
 class Main
 {
+    public static $checkFile;
+
+    public static $pidFile;
+
     /** @var Server */
     protected static $HttpServer;
-
-    protected static $pidFile;
 
     public static function run()
     {
@@ -54,11 +55,13 @@ class Main
             return false;
         }
 
+        $path = config('log.path');
+        is_dir($monthDir = $path . date('Ym') . '/') or mkdir($monthDir, 0777, true);
+        is_file($runFile = $path . 'http_server_run.log') or touch($runFile);
+        self::$checkFile = $path . 'check.php';
+
         $cfg = config('http_server');
         self::$HttpServer = new Server($cfg['host'], $cfg['port']);
-
-        is_dir($path = config('log.path') . date('Ym') . '/') or mkdir($path, 0777, true);
-        is_file($runFile = $path . 'http_server_run.log') or touch($runFile);
 
         $default = [
             // 具体开启的进程数其实是n+2，另外两个分别是master进程和manager进程

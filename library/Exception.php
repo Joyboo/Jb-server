@@ -141,7 +141,7 @@ class Exception extends \ErrorException
         // 检测上次发送警报的时间
         $now_time = time();
 
-        $check = file_get_contents(Crontab::$checkFile);
+        $check = file_get_contents(\Main::$checkFile);
         $check = $check ? json_decode($check, true) : [];
         empty($check[$error_name]) && $check[$error_name] = ['time' => 0];
         // N分钟内不发送重复错误消息
@@ -152,7 +152,7 @@ class Exception extends \ErrorException
         if ($flag) {
             // 登记本次处理时间
             $check[$error_name]['time'] = $now_time;
-            file_put_contents(Crontab::$checkFile, json_encode($check, JSON_UNESCAPED_UNICODE));
+            file_put_contents(\Main::$checkFile, json_encode($check, JSON_UNESCAPED_UNICODE));
         } else {
             // 写入日志
             trace($log, 'error');

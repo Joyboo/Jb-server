@@ -1,12 +1,9 @@
 <?php
 /**
  * 通用函数库
- * @version 2.0 2017-08-14
- * @since 3.0 2019-01-01 优化版第二个版本
  */
 
 use library\Config;
-use library\Crontab;
 use library\Exception;
 use library\cache\Redis as Cache;
 
