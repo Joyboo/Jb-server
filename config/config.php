@@ -26,6 +26,7 @@ return [
     // http_server
     'http_server' => [
         'host' => '127.0.0.1',
-        'port' => 9505
+        'port' => 9505,
+        'config_set' => [], // set其他设置，可重写原有的参数
     ],
 ];

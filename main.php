@@ -9,11 +9,12 @@ use Swoole\Process;
 
 define('APP_DEBUG', true);
 define('DS', DIRECTORY_SEPARATOR);
-define('ROOT_PATH', realpath(dirname(dirname(__DIR__))) . DS);
+define('ROOT_PATH', realpath(dirname(__FILE__)) . DS);
+define('APP_PATH', ROOT_PATH . 'application' . DS);
 define('LIB_PATH', ROOT_PATH . 'library' . DS);
 define('CONF_PATH', ROOT_PATH . 'config' . DS);
 define('CACHE_PATH', ROOT_PATH . 'cache' . DS);
-define('HTTP_PATH', dirname(__DIR__) . DS . 'http' . DS);
+define('HTTP_PATH', APP_PATH . 'http' . DS);
 
 class Main
 {
@@ -30,13 +31,16 @@ class Main
         /* 初始化机制 */
         require LIB_PATH . 'Loader.php';
         // 注册自动加载并启动
-        \library\Loader::register([ROOT_PATH . 'extend', LIB_PATH . 'extend'], [
+        \library\Loader::register([
+            ROOT_PATH . 'extend',
+            LIB_PATH . 'extend'
+        ], [
             'library' => LIB_PATH,
-            'app' => ROOT_PATH . 'application' . DS
+            'app' => APP_PATH
         ]);
 
         // 注册错误和异常处理机制
-        \library\Exception::register();
+        Exception::register();
 
         // 加载惯例配置文件
         config(CONF_PATH . 'config.php');
@@ -56,7 +60,7 @@ class Main
         is_dir($path = config('log.path') . date('Ym') . '/') or mkdir($path, 0777, true);
         is_file($runFile = $path . 'http_server_run.log') or touch($runFile);
 
-        self::$HttpServer->set([
+        $default = [
             // 具体开启的进程数其实是n+2，另外两个分别是master进程和manager进程
             'worker_num' => 10,
             // 守护进程化
@@ -69,7 +73,8 @@ class Main
             'log_file' => $runFile,
             // 设置 Server 错误日志打印的等级，范围是 0-6。低于 log_level 设置的日志信息不会抛出
             'log_level' => SWOOLE_LOG_TRACE,
-        ]);
+        ];
+        self::$HttpServer->set(array_merge($default, $cfg['config_set'] ?? []));
 
         self::$HttpServer->on("start", function ($server) use ($cfg) {
             trace("httpServer已启动: {$cfg['host']}:{$cfg['port']}");

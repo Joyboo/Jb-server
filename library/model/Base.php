@@ -5,10 +5,6 @@ namespace library\model;
 use library\Db;
 use library\Redis;
 
-/**
- * @author dj
- * @version 2017-04-14
- */
 class Base
 {
     public $dbkey = ''; // config里面的db配置的key
