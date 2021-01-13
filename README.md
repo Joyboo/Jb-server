@@ -2,17 +2,17 @@
 
 开始
 
-    修改配置文件内的本地配置： Jb-HttpServer/config/config.php
+    修改配置文件内的本地配置： Jb-Server/config/config.php
 
 启动
     
-    /pathto/php Jb-HttpServer/application/http/main.php -s [start|stop|restart]
+    /pathto/php Jb-Server/application/http/main.php -s [start|stop|restart]
     
 至此httpServer已经启动完成了，就是如此简单！
 
 目录结构
 ~~~
-Jb-HttpServer
+Jb-Server
 ├─application           应用目录
 │  ├─models             模型目录
 │  └─http               http目录，http单独目录方便扩展websocket等
