@@ -79,8 +79,12 @@ class Main
         ];
         self::$HttpServer->set(array_merge($default, $cfg['config_set'] ?? []));
 
-        self::$HttpServer->on("start", function ($server) use ($cfg) {
+        self::$HttpServer->on("start", function (\Swoole\Server $server) use ($cfg) {
             trace("httpServer已启动: {$cfg['host']}:{$cfg['port']}");
+        });
+
+        self::$HttpServer->on('shutdown', function (\Swoole\Server $server) use ($cfg) {
+            trace("httpServer已停止: {$cfg['host']}:{$cfg['port']} 主进程id:{$server->master_pid}");
         });
 
         self::$HttpServer->on('request', function (Request $request, Response $response) {
@@ -129,7 +133,6 @@ class Main
 
         // 检测进程是否存在，不会发送信号
         if (Process::kill($pid, 0)) {
-            trace("httpServer进程{$pid}已结束");
             // 发送 kill 15 $pid
             Process::kill($pid);
         } else {

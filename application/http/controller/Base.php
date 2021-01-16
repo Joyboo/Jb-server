@@ -32,6 +32,9 @@ abstract class Base
         $this->request = $request;
         $this->response = $response;
 
+        /* \Swoole\Http\Server->setGlobal() 已停止支持了
+         * 这里自己实现，需注意不要在协程或异步操作中使用超全局变量
+         *  */
         $_GET = $request->get ?? [];
         $_POST = $request->post ?? [];
         $_REQUEST = array_merge($_GET, $_POST);
