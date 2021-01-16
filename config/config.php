@@ -27,6 +27,10 @@ return [
     'http_server' => [
         'host' => '127.0.0.1',
         'port' => 9505,
-        'config_set' => [], // set其他设置，可重写原有的参数
+        'process_name' => 'Joyboo',
+        // set其他设置，可重写原有的参数
+        'config_set' => [
+            'worker_num' => 5,
+        ],
     ],
 ];

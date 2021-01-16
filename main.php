@@ -81,6 +81,25 @@ class Main
 
         self::$HttpServer->on("start", function (\Swoole\Server $server) use ($cfg) {
             trace("httpServer已启动: {$cfg['host']}:{$cfg['port']}");
+
+            // 主进程
+            if (!empty($cfg['process_name'])) {
+                cli_set_process_title($cfg['process_name']);
+            }
+        });
+
+        self::$HttpServer->on('managerStart', function(\Swoole\Server $server) use ($cfg) {
+            // manager进程
+            if (!empty($cfg['process_name'])) {
+                cli_set_process_title("{$cfg['process_name']}_manager");
+            }
+        });
+
+        self::$HttpServer->on('workerStart', function(\Swoole\Server $server, $worker_id) use ($cfg) {
+            // 子进程
+            if (!empty($cfg['process_name'])) {
+                cli_set_process_title("{$cfg['process_name']}_{$worker_id}");
+            }
         });
 
         self::$HttpServer->on('shutdown', function (\Swoole\Server $server) use ($cfg) {
