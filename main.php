@@ -135,6 +135,7 @@ class Main
         if (Process::kill($pid, 0)) {
             // 发送 kill 15 $pid
             Process::kill($pid);
+            Process::wait();
         } else {
             trace("httpServer进程{$pid}不存在,删除pid文件");
         }
