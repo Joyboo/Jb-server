@@ -103,6 +103,11 @@ class Main
             self::createConnectPool();
         });
 
+        self::$HttpServer->on('workerStop', function(\Swoole\Server $server, $worker_id) {
+            // 关闭连接池
+            self::closeConnectPool();
+        });
+
         self::$HttpServer->on('shutdown', function (\Swoole\Server $server) use ($cfg) {
             trace("httpServer已停止: {$cfg['host']}:{$cfg['port']} 主进程id:{$server->master_pid}");
         });
@@ -148,6 +153,10 @@ class Main
         });
     }
 
+    /**
+     * 修改当前进程名称
+     * @param string $name
+     */
     public static function setProcessName($name = '')
     {
         if (!empty($name) && function_exists('cli_set_process_title')) {
@@ -155,6 +164,9 @@ class Main
         }
     }
 
+    /**
+     * 创建redis协程连接池
+     */
     public static function createConnectPool()
     {
         $cfg = config('redis');
@@ -175,6 +187,14 @@ class Main
             $cfgObj->withTimeout($cfg['timeout']);
         }
         self::$redisPool = new RedisPool($cfgObj);
+    }
+
+    /**
+     * 关闭redis协程连接池
+     */
+    public static function closeConnectPool()
+    {
+        self::$redisPool->close();
     }
 
     /**
