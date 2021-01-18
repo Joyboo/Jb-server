@@ -2,6 +2,7 @@
 
 namespace app\http\controller;
 
+use Redis;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
@@ -20,15 +21,20 @@ abstract class Base
     /** @var Response $response */
     protected $response;
 
+    /** @var Redis $redis */
+    protected $redis;
+
     protected $time = 0;
 
     /**
      * Base constructor.
      * @param Request $request
      * @param Response $response
+     * @param Redis $redis
      */
-    public function __construct(Request $request, Response $response)
+    public function __construct(Request $request, Response $response, Redis $redis)
     {
+        $this->redis = $redis;
         $this->request = $request;
         $this->response = $response;
 

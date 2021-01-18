@@ -5,6 +5,8 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
 use Swoole\Process;
+use Swoole\Database\RedisPool;
+use Swoole\Database\RedisConfig;
 
 define('APP_DEBUG', true);
 define('DS', DIRECTORY_SEPARATOR);
@@ -20,6 +22,9 @@ class Main
     public static $checkFile;
 
     public static $pidFile;
+
+    /** @var RedisPool $redisPool 协程redis连接池 */
+    public static $redisPool;
 
     /** @var Server */
     protected static $HttpServer;
@@ -80,7 +85,7 @@ class Main
         self::$HttpServer->set(array_merge($default, $cfg['config_set'] ?? []));
 
         self::$HttpServer->on("start", function (\Swoole\Server $server) use ($cfg) {
-            trace("httpServer已启动: {$cfg['host']}:{$cfg['port']}");
+            trace("httpServer已启动: {$cfg['host']}:{$cfg['port']} 主进程id:{$server->master_pid}");
             // 主进程
             self::setProcessName($cfg['process_name']);
         });
@@ -93,6 +98,9 @@ class Main
         self::$HttpServer->on('workerStart', function(\Swoole\Server $server, $worker_id) use ($cfg) {
             // 子进程
             self::setProcessName("{$cfg['process_name']}_{$worker_id}");
+
+            // 创建连接池
+            self::createConnectPool();
         });
 
         self::$HttpServer->on('shutdown', function (\Swoole\Server $server) use ($cfg) {
@@ -112,11 +120,16 @@ class Main
                 if (!class_exists($className)) {
                     $response->status(404);
                     $response->end('controller not found: ' . $controller);
+                    return;
                 }
 
-                $class = new $className($request, $response);
+                $redis = self::getRedisPool();
+
+                $class = new $className($request, $response, $redis);
                 if (!method_exists($class, $action)) {
+                    self::putRedisPool($redis);
                     $response->end("Bad request: {$controller}.{$action}");
+                    return;
                 }
 
                 $class->$action();
@@ -131,6 +144,7 @@ class Main
                 $response->status(500);
                 $response->end($err['message']);
             }
+            self::putRedisPool($redis);
         });
     }
 
@@ -138,6 +152,48 @@ class Main
     {
         if (!empty($name) && function_exists('cli_set_process_title')) {
             cli_set_process_title($name);
+        }
+    }
+
+    public static function createConnectPool()
+    {
+        $cfg = config('redis');
+        $cfgObj = new RedisConfig();
+        if (isset($cfg['db'])) {
+            $cfgObj->withDbIndex($cfg['db']);
+        }
+        if (isset($cfg['host'])) {
+            $cfgObj->withHost($cfg['host']);
+        }
+        if (isset($cfg['password'])) {
+            $cfgObj->withAuth($cfg['password']);
+        }
+        if (isset($cfg['port'])) {
+            $cfgObj->withPort($cfg['port']);
+        }
+        if (isset($cfg['timeout'])) {
+            $cfgObj->withTimeout($cfg['timeout']);
+        }
+        self::$redisPool = new RedisPool($cfgObj);
+    }
+
+    /**
+     * 从连接池获取一个redis连接
+     * @return Redis
+     */
+    public static function getRedisPool()
+    {
+        return self::$redisPool->get();
+    }
+
+    /**
+     * 回收一个redis连接
+     * @param $redis
+     */
+    public static function putRedisPool($redis)
+    {
+        if ($redis) {
+            self::$redisPool->put($redis);
         }
     }
 
