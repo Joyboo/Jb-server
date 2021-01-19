@@ -34,7 +34,5 @@ Jb-Server
 └─main.php             入口文件
 ~~~
 
-> http目录下的子类继承Base后，Swoole->Request信息已赋值给超全局变量$_GET,$_POST等，业务控制器直接使用即可。
-
 
 ### 喜欢的同学可以点个star，欢迎Issues交流。
