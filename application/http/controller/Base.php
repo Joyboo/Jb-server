@@ -41,6 +41,16 @@ abstract class Base
         $this->time = time();
     }
 
+    protected function request() : Request
+    {
+        return $this->request;
+    }
+
+    protected function response() : Response
+    {
+        return $this->response;
+    }
+
     /**
      * 获取客户端ip
      * @return string|bool
